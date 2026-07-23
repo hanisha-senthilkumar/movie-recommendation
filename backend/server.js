@@ -9,23 +9,17 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0'; // Required for Render
 
-// Connect Database (MongoDB or In-Memory Mode) - Japanese Posters Updated
+// Connect Database (MongoDB or In-Memory Mode)
 connectDB();
 
-// Middleware
-const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
-  'https://movie-recommendation-nkok.onrender.com',
-  'https://movie-recommendation-frontend.onrender.com'
-];
+// Middleware - Allow all origins (CORS)
 app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-    cb(new Error('Not allowed by CORS'));
-  },
+  origin: true,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
 app.use(express.json());
 app.use(cookieParser());
@@ -44,25 +38,26 @@ app.use('/api/ratings', ratingRoutes);
 app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 
-// Health Check Endpoint
+// Health Check Endpoint (must respond FAST for Render port scan)
 app.get('/api/health', (req, res) => {
-  res.json({
+  res.status(200).json({
     status: 'online',
     service: 'CineMatch Node Backend API',
     timestamp: new Date()
   });
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`[CineMatch Backend] Server listening on port ${PORT} (http://localhost:${PORT})`);
+// Serve React Frontend (Static files from built dist folder)
+const frontendBuild = path.join(__dirname, '../frontend/dist');
+app.use(express.static(frontendBuild));
+
+// React Router: catch-all (must come AFTER API routes)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendBuild, 'index.html'));
 });
 
-// Serve React Frontend in Production
-if (process.env.NODE_ENV === 'production') {
-  const frontendBuild = path.join(__dirname, '../frontend/dist');
-  app.use(express.static(frontendBuild));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendBuild, 'index.html'));
-  });
-}
+// Start Server — bind to 0.0.0.0 for Render
+app.listen(PORT, HOST, () => {
+  console.log(`[CineMatch] Server running on ${HOST}:${PORT}`);
+  console.log(`[CineMatch] Health: http://${HOST}:${PORT}/api/health`);
+});
