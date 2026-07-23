@@ -8,6 +8,15 @@ const api = axios.create({
   }
 });
 
+// Attach JWT token from localStorage to every request header as fallback
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('cinematch_token');
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // Auth APIs
 export const registerUser = (data) => api.post('/auth/register', data);
 export const loginUser = (data) => api.post('/auth/login', data);

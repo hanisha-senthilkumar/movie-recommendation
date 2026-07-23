@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const res = await loginUser({ email, password });
+      if (res.data.token) localStorage.setItem('cinematch_token', res.data.token);
       setUser(res.data.user);
       addToast(`Welcome back, ${res.data.user.name}!`, 'success');
       return { success: true };
@@ -45,6 +46,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password) => {
     try {
       const res = await registerUser({ name, email, password });
+      if (res.data.token) localStorage.setItem('cinematch_token', res.data.token);
       setUser(res.data.user);
       addToast(`Account created! Welcome to CineMatch, ${res.data.user.name}!`, 'success');
       return { success: true };
@@ -68,11 +70,10 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await logoutUser();
-      setUser(null);
-      addToast('Signed out successfully.', 'info');
-    } catch (err) {
-      setUser(null);
-    }
+    } catch (err) { /* no-op */ }
+    localStorage.removeItem('cinematch_token');
+    setUser(null);
+    addToast('Signed out successfully.', 'info');
   };
 
   const toggleUserWatchlist = async (movieId) => {

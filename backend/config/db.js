@@ -8,17 +8,25 @@ const inMemoryStore = {
 };
 
 const connectDB = async () => {
-  const connString = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/cinematch';
+  const connString = process.env.MONGODB_URI;
+
+  // If no MONGODB_URI is set, skip entirely and use in-memory
+  if (!connString) {
+    isInMemoryFallback = true;
+    console.log('[CineMatch DB] No MONGODB_URI set — using built-in In-Memory Database. All data resets on restart.');
+    return;
+  }
+
   try {
     mongoose.set('strictQuery', false);
     await mongoose.connect(connString, {
-      serverSelectionTimeoutMS: 2500
+      serverSelectionTimeoutMS: 5000
     });
     console.log(`[CineMatch DB] MongoDB connected successfully to ${mongoose.connection.host}`);
   } catch (err) {
     isInMemoryFallback = true;
-    console.warn(`[CineMatch DB] Local MongoDB unavailable (${err.message}).`);
-    console.log(`[CineMatch DB] Activated built-in In-Memory Database Mode for instant operation!`);
+    console.warn(`[CineMatch DB] MongoDB connection failed (${err.message}).`);
+    console.log(`[CineMatch DB] Activated built-in In-Memory Database Mode.`);
   }
 };
 
