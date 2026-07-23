@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-sans: 'Inter', sans-serif;
+    
+    /* Light Theme (Default fallback but app is primarily dark, so we can define light here) */
+    --bg-page: #F8FAFC;
+    --bg-panel: #FFFFFF;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --border-light: rgba(0,0,0,0.1);
+    --bg-hover: rgba(0,0,0,0.05);
+    --bg-glass: rgba(255, 255, 255, 0.7);
+  }
+
+  .dark {
+    /* Dark Theme */
+    --bg-page: #0B0D12;
+    --bg-panel: #11141A;
+    --text-primary: #F1F5F9;
+    --text-secondary: #94A3B8;
+    --border-light: rgba(255,255,255,0.1);
+    --bg-hover: rgba(255,255,255,0.05);
+    --bg-glass: rgba(17, 20, 26, 0.7);
+  }
+
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Film Grain Animated Overlay */
+.film-grain {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  width: 200%;
+  height: 200vh;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: 1;
+  animation: grain 8s steps(10) infinite;
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  20% { transform: translate(-15%, 5%); }
+  30% { transform: translate(7%, -25%); }
+  40% { transform: translate(-5%, 25%); }
+  50% { transform: translate(-15%, 10%); }
+  60% { transform: translate(15%, 0%); }
+  70% { transform: translate(0%, 15%); }
+  80% { transform: translate(3%, 35%); }
+  90% { transform: translate(-10%, 10%); }
+}
+
+/* Custom Glassmorphic Card Styling */
+.glass-panel {
+  background: rgba(17, 20, 26, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(242, 184, 75, 0.4);
+  box-shadow: 0 0 30px rgba(242, 184, 75, 0.2);
+  transform: translateY(-4px);
+}
+
+/* Amber Button Glow */
+.btn-amber {
+  background-color: #F2B84B;
+  color: #0B0D12;
+  font-weight: 700;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 15px rgba(242, 184, 75, 0.25);
+}
+
+.btn-amber:hover {
+  background-color: #F8C668;
+  box-shadow: 0 0 25px rgba(242, 184, 75, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-amber:active {
+  transform: scale(0.97);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0B0D12;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E2330;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #F2B84B;
+}
