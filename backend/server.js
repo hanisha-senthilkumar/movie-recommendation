@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
+const path = require('path');
 const { connectDB } = require('./config/db');
 
 dotenv.config();
@@ -13,8 +14,16 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Middleware
+const allowedOrigins = [
+  process.env.CLIENT_URL || 'http://localhost:5173',
+  'https://movie-recommendation-nkok.onrender.com',
+  'https://movie-recommendation-frontend.onrender.com'
+];
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    cb(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
@@ -48,3 +57,12 @@ app.get('/api/health', (req, res) => {
 app.listen(PORT, () => {
   console.log(`[CineMatch Backend] Server listening on port ${PORT} (http://localhost:${PORT})`);
 });
+
+// Serve React Frontend in Production
+if (process.env.NODE_ENV === 'production') {
+  const frontendBuild = path.join(__dirname, '../frontend/dist');
+  app.use(express.static(frontendBuild));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendBuild, 'index.html'));
+  });
+}
